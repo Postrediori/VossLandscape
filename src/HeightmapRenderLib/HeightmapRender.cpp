@@ -4,8 +4,7 @@
 #include "Image.h"
 #include "HeightmapRender.h"
 
-static const double g_ZS = 100.;
-/* static const size_t CSIZE = 800; */
+static const double g_ZScale = 100.0;
 
 static const double g_SnowLevel = 50.0;
 
@@ -13,9 +12,6 @@ static const uint32_t g_ColorWater = 0x0000AA;
 static const uint32_t g_ColorEarth = 0xAA5500;
 static const uint32_t g_ColorSnow  = 0xFFFFFF;
 
-/*****************************************************************************
- * LandDrawer
- ****************************************************************************/
 HeightmapRender::HeightmapRender(VossHeightmap& map, Image& image)
     : m_map(map)
     , m_image(image)
@@ -27,7 +23,7 @@ HeightmapRender::HeightmapRender(VossHeightmap& map, Image& image)
 
     m_scale  = (m_image.GetWidth() - 4) * 2.0 /
               (sqrt(3.0) * ((m_xmax - m_xmin) + (m_ymax - m_ymin)));
-    m_zScale = g_ZS;
+    m_zScale = g_ZScale;
 
     m_c.resize(image.GetWidth());
 }
@@ -109,7 +105,7 @@ void HeightmapRender::p5000()
 {
     int xp = iround(m_x);
     int yp = iround(m_y);
-    m_z = m_map.GetB(yp * m_map.GetWidth() + xp) / SS;
+    m_z = m_map.GetB(yp * m_map.GetWidth() + xp) / m_map.GetSlopeSeek();
     if (m_z <= 0.0) {
         m_z = 0.0;
     }

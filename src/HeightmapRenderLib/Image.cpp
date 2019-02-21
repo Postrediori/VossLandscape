@@ -13,9 +13,6 @@ void convertColor(uint32_t color, uint8_t rgba[])
     rgba[3] = 0;
 }
 
-/*****************************************************************************
- * Image
- ****************************************************************************/
 Image::Image(size_t width, size_t height)
     : m_width(width)
     , m_height(height)
