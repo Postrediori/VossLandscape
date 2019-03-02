@@ -3,7 +3,7 @@
 class HeightmapRender
 {
 public:
-    HeightmapRender(VossHeightmap& map, Image& image);
+    HeightmapRender(VossHeightmap* map, Image* image);
     
     void draw();
     
@@ -21,8 +21,8 @@ private:
     void p8200();
     
 private:
-    VossHeightmap& m_map;
-    Image& m_image;
+    VossHeightmap* m_map;
+    Image* m_image;
 
     std::vector<uint16_t> m_c;
 

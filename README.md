@@ -14,6 +14,7 @@ utilizes pink noise.
 ## Contents
 
 * `VossImage` - console utility that produces images with a specified seed and coordinates.
+* `VossLandscape` - interactive version with GUI.
 
 ### Usage options
 
@@ -87,17 +88,14 @@ make
 
 ## Running Project
 
-After the successful build the binary `VossImage` will end up in `build/src/VossImage/` directory.
+After the successful build the binary `VossLandscape` will end up in `build/src/VossLandscape/` directory.
 
 ```
 cd build
-./src/Ocean/VossImage
+./src/VossLandscape/VossLandscape
 ```
 
 ## Links
 
 * Richard F. Voss and John Clarke. ["1/f noise" in music: Music from 1/f noise](https://asa.scitation.org/doi/abs/10.1121/1.381721). The Journal of the Acoustical Society of America 63, 258 (1978).
 
-## TODO
-
-* Make interactive program with GUI (using SDL, GLFW, etc).

@@ -12,20 +12,20 @@ static const uint32_t g_ColorWater = 0x0000AA;
 static const uint32_t g_ColorEarth = 0xAA5500;
 static const uint32_t g_ColorSnow  = 0xFFFFFF;
 
-HeightmapRender::HeightmapRender(VossHeightmap& map, Image& image)
+HeightmapRender::HeightmapRender(VossHeightmap* map, Image* image)
     : m_map(map)
     , m_image(image)
 {
-    m_xmax = map.GetWidth() - 1; m_xmin = 0.0;
-    m_ymax = map.GetWidth() - 1; m_ymin = 0.0;
+    m_xmax = map->GetWidth() - 1; m_xmin = 0.0;
+    m_ymax = map->GetWidth() - 1; m_ymin = 0.0;
     m_xh = -1.0;
     m_yh = -1.0;
 
-    m_scale  = (m_image.GetWidth() - 4) * 2.0 /
+    m_scale  = (m_image->GetWidth() - 4) * 2.0 /
               (sqrt(3.0) * ((m_xmax - m_xmin) + (m_ymax - m_ymin)));
     m_zScale = g_ZScale;
 
-    m_c.resize(image.GetWidth());
+    m_c.resize(image->GetWidth());
 }
 
 void HeightmapRender::draw()
@@ -105,13 +105,13 @@ void HeightmapRender::p5000()
 {
     int xp = iround(m_x);
     int yp = iround(m_y);
-    m_z = m_map.GetB(yp * m_map.GetWidth() + xp) / m_map.GetSlopeSeek();
+    m_z = m_map->GetHeight(xp, yp) / m_map->GetSlopeSeek();
     if (m_z <= 0.0) {
         m_z = 0.0;
     }
     m_z *= m_zScale;
-    m_xt = double(m_image.GetWidth() / 2 - 1) + sqrt(3.0) * (m_yi - m_xi) / 2.0;
-    m_yt = double(m_image.GetHeight() - 1) + m_z - (m_yi + m_xi) / 2.0;
+    m_xt = double(m_image->GetWidth() / 2 - 1) + sqrt(3.0) * (m_yi - m_xi) / 2.0;
+    m_yt = double(m_image->GetHeight() - 1) + m_z - (m_yi + m_xi) / 2.0;
 }
 
 void HeightmapRender::p6000() {
@@ -182,7 +182,7 @@ void HeightmapRender::p8000()
         color = g_ColorSnow;
     }
 
-    m_image.putPixel(xp, m_image.GetHeight() + 100 - 1 - yp, color);
+    m_image->putPixel(xp, m_image->GetHeight() + 100 - 1 - yp, color);
 }
 
 void HeightmapRender::p8100()

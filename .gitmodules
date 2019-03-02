@@ -1,0 +1,8 @@
+[submodule "3rdparty/glad"]
+	path = 3rdparty/glad
+	url = https://github.com/Dav1dde/glad.git
+	branch = c
+[submodule "3rdparty/plog"]
+	path = 3rdparty/plog
+	url = https://github.com/SergiusTheBest/plog.git
+	branch = master

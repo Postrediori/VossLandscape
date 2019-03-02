@@ -6,9 +6,11 @@ public:
     VossHeightmap(size_t nmax);
     
     void generate(int x, int y);
+
+    void SetSeekValues(double heightSeek, double slopeSeek);
     
     size_t GetWidth() const { return m_width; }
-    int GetB(size_t index) const { return m_b[index]; }
+    int GetHeight(size_t x, size_t y) const { return m_b[y * m_width + x]; }
 
     double GetSlopeSeek() const { return m_slopeSeek; }
 

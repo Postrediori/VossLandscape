@@ -8,6 +8,7 @@ include_directories(
 target_link_libraries(${PROJECT}
     ${PNG_LIBRARIES}
     ${ZLIB_LIBRARIES}
+    MathLib
     VossGeneratorLib
     HeightmapRenderLib
     )

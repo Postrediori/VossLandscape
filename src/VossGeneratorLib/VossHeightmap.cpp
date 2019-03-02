@@ -143,3 +143,10 @@ double VossHeightmap::nrand(double a, double D)
     x = (x - 5.0) * sqrt(D) / sqrt(10.0 / 12.0) + a;
     return x;
 }
+
+void VossHeightmap::SetSeekValues(double heightSeek, double slopeSeek)
+{
+    m_heightSeek = heightSeek;
+    m_slopeSeek = slopeSeek;
+}
+

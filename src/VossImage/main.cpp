@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
     
     VossHeightmap map(g_LandscapeSize);
     PngImage image(params.imageWidth, params.imageHeight);
-    HeightmapRender render(map, image);
+    HeightmapRender render(&map, &image);
 
     map.generate(params.worldPosX, params.worldPosY);
     render.draw();
