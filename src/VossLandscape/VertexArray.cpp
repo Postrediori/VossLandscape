@@ -7,14 +7,12 @@ VertexArray::VertexArray(ShaderProgram& program)
     : m_vao(0)
     , m_program(program)
 {
-    if (program.GetShaderVer() >= 130) {
-        glGenVertexArrays(1, &m_vao); LOGOPENGLERROR();
-        glBindVertexArray(m_vao); LOGOPENGLERROR();
+    glGenVertexArrays(1, &m_vao); LOGOPENGLERROR();
+    glBindVertexArray(m_vao); LOGOPENGLERROR();
 
-        m_program.SetupAttributes();
+    m_program.SetupAttributes();
 
-        glBindVertexArray(0); LOGOPENGLERROR();
-    }
+    glBindVertexArray(0); LOGOPENGLERROR();
 }
 
 VertexArray::~VertexArray()
