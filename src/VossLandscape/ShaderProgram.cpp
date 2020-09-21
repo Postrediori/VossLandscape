@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "GlUtils.h"
-#include "GlShader.h"
+#include "Shader.h"
 #include "ShaderProgram.h"
 
 
@@ -46,8 +46,8 @@ static const GLfloat g_OrthoMVP[] = {
 ShaderProgram::ShaderProgram()
     : m_shaderVer(0)
 {
-    if (GlShader::createProgramSource(m_program, m_vertex, m_fragment
-        , vertex_src_1_30, fragment_src_1_30)) {
+    if (Shader::createProgramSource(m_program,
+        vertex_src_1_30, fragment_src_1_30)) {
         LOGI << "Using GLSL 1.30 for rendering";
         m_shaderVer = 130;
     }
@@ -72,7 +72,7 @@ ShaderProgram::ShaderProgram()
 
 ShaderProgram::~ShaderProgram()
 {
-    GlShader::releaseProgram(m_program, m_vertex, m_fragment); LOGOPENGLERROR();
+    glDeleteProgram(m_program); LOGOPENGLERROR();
 }
 
 void ShaderProgram::SetUniforms(int w, int h)

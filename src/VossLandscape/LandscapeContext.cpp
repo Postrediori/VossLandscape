@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "LinearAlg.h"
 #include "GlUtils.h"
-#include "GlShader.h"
+#include "Shader.h"
 #include "VertexBuffer.h"
 #include "ShaderProgram.h"
 #include "VertexArray.h"
