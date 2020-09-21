@@ -27,6 +27,11 @@ static const GLfloat g_Vertices[] = {
     , -1.f,  1.f,  0.0f, 1.0f
 };
 
+static const std::vector<linearalg::ivec2> ResolutionData = {
+    {640, 480},
+    {800, 600},
+    {1024, 768}
+};
 
 LandscapeContext::LandscapeContext()
     : pointsVbo(GL_TRIANGLES, g_VerticesCount, g_Vertices)
@@ -87,48 +92,72 @@ void LandscapeContext::Display() {
 
 void LandscapeContext::DisplayUI() {
     linearalg::ivec2 newWorldPos = worldPos;
-    linearalg::ivec2 newResolution = resolution;
+    int newResolutionId = resolutionId;
     float newHeightSeek = heightSeek;
     float newSlopeSeek = slopeSeek;
     int newLandscapeSize = landscapeSize;
 
     ImGui::Begin("Heightmap Settings");
 
+    ImGui::Text("Procedural Landscape");
+
+    ImGui::Separator();
+
     ImGui::Text("Heightmap Size");
 
-    ImGui::BeginGroup();
-    if (ImGui::Button("64x64")) {
-        newLandscapeSize = 6;
+    static const std::vector<std::tuple<std::string, int>> LandscapeSizeData = {
+        {"64x64", 6}, {"128x128", 7}, {"256x256", 8},
+    };
+
+    bool firstItemFlag = true;
+    for (const auto& data : LandscapeSizeData) {
+        std::string name;
+        int size;
+        std::tie(name, size) = data;
+
+        if (firstItemFlag) {
+            firstItemFlag = false;
+        }
+        else {
+            ImGui::SameLine();
+        }
+
+        ImGui::RadioButton(name.c_str(), &newLandscapeSize, size);
     }
-    ImGui::SameLine();
-    if (ImGui::Button("128x128")) {
-        newLandscapeSize = 7;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("256x256")) {
-        newLandscapeSize = 8;
-    }
-    ImGui::EndGroup();
+
+    ImGui::Separator();
 
     ImGui::Text("Output Resolution");
 
-    if (ImGui::Button("640x480")) {
-        newResolution = { 640, 480 };
+    static const std::vector<std::tuple<std::string, int>> OutputResolutionData = {
+        {"640x480", 0}, {"800x600", 1}, {"1024x768", 2},
+    };
+
+    firstItemFlag = true;
+    for (const auto& data : OutputResolutionData) {
+        std::string name;
+        int sizeId;
+        std::tie(name, sizeId) = data;
+
+        if (firstItemFlag) {
+            firstItemFlag = false;
+        }
+        else {
+            ImGui::SameLine();
+        }
+
+        ImGui::RadioButton(name.c_str(), &newResolutionId, sizeId);
     }
-    ImGui::SameLine();
-    if (ImGui::Button("800x600")) {
-        newResolution = { 800, 600 };
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("1024x768")) {
-        newResolution = { 1024, 768 };
-    }
+
+    ImGui::Separator();
 
     ImGui::InputFloat("Height Seek", &newHeightSeek, 0.1f, 1.0f, "%.1f");
-
     ImGui::InputFloat("Slope Seek", &newSlopeSeek, 50.f, 100.0f, "%.0f");
 
-    ImGui::Text("World Position: %d, %d", worldPos.x, worldPos.y);
+    ImGui::Separator();
+
+    ImGui::Text("World Navigation", worldPos.x, worldPos.y);
+    ImGui::Text("Position: %d, %d", worldPos.x, worldPos.y);
 
     float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
     if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
@@ -165,8 +194,9 @@ void LandscapeContext::DisplayUI() {
         image->clear();
     }
 
-    if (resolution != newResolution) {
-        resolution = newResolution;
+    if (resolutionId != newResolutionId) {
+        resolutionId = newResolutionId;
+        resolution = ResolutionData[resolutionId];
         LOGI << "Set image resolution to " << resolution.x << "," << resolution.y;
         image.reset(new GlImage(resolution.x, resolution.y));
         render.reset(new HeightmapRender(map.get(), image.get()));
@@ -186,8 +216,16 @@ void LandscapeContext::DisplayUI() {
         render.reset(new HeightmapRender(map.get(), image.get()));
     }
 
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)"
-        , 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::Separator();
+
+    ImGui::Text("User guide:");
+    ImGui::BulletText("F1 to toggle fullscreen");
+    ImGui::BulletText("ESC to exit");
+
+    ImGui::Separator();
+
+    ImGui::Text("FPS Counter: %.1f", mFps);
+
     ImGui::End();
 }
 
@@ -225,5 +263,11 @@ void LandscapeContext::Keyboard(int key, int /*scancode*/, int action, int /*mod
 }
 
 void LandscapeContext::Update() {
-    //
+    static double lastFpsTime = 0.0;
+    double currentTime = glfwGetTime();
+
+    if (currentTime - lastFpsTime > 1.0) {
+        mFps = ImGui::GetIO().Framerate;
+        lastFpsTime = currentTime;
+    }
 }

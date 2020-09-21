@@ -48,12 +48,14 @@ private:
     bool mFullscreen = false;
     int mSavedXPos = 0, mSavedYPos = 0;
     int mSavedWidth = 0, mSavedHeight = 0;
+    float mFps = 0.f;
 
     ShaderProgram program;
     VertexBuffer pointsVbo;
     VertexArray pointsVao;
 
     int landscapeSize = g_LandscapeSize;
+    int resolutionId = 1;
     linearalg::ivec2 resolution = { 800, 600 };
     linearalg::ivec2 worldPos = { 10, 10 };
     double heightSeek = 2.0, slopeSeek = 2200.0;

@@ -15,6 +15,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <functional>
+#include <tuple>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
