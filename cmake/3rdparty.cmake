@@ -1,9 +1,5 @@
-find_package(PNG REQUIRED)
-find_package(ZLIB REQUIRED)
-
-set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
-find_package(SDL2 REQUIRED)
+# find_package(SDL2 REQUIRED)
 
 if (CMAKE_SYSTEM_NAME STREQUAL Linux)
   find_package(X11 REQUIRED)
@@ -14,5 +10,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL Linux)
 endif ()
 
 include(cmake/plog.cmake)
+include(cmake/glfw.cmake)
+include(cmake/stb.cmake)
 include(cmake/glad.cmake)
 include(cmake/imgui.cmake)
