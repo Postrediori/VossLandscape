@@ -158,7 +158,7 @@ void LandscapeContext::DisplayUI() {
 
     ImGui::Separator();
 
-    ImGui::Text("World Navigation", worldPos.x, worldPos.y);
+    ImGui::Text("World Navigation");
     ImGui::Text("Position: %d, %d", worldPos.x, worldPos.y);
 
     float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
