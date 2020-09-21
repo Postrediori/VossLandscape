@@ -67,6 +67,11 @@ void LandscapeContext::Release() {
     //
 }
 
+void LandscapeContext::UpdateRenderedLandscape() {
+    render->draw();
+    image->CopyToTexture();
+}
+
 void LandscapeContext::Display() {
     glClear(GL_COLOR_BUFFER_BIT); LOGOPENGLERROR();
 
@@ -79,9 +84,6 @@ void LandscapeContext::Display() {
     pointsVbo.BindBuffer();
 
     pointsVao.BindVertexArray();
-
-    render->draw();
-    image->CopyToTexture();
 
     pointsVbo.DrawArrays();
 
@@ -192,6 +194,8 @@ void LandscapeContext::DisplayUI() {
         map->generate(worldPos.x, worldPos.y);
 
         image->clear();
+
+        mIsLandscapeNeedsUpdate = true;
     }
 
     if (resolutionId != newResolutionId) {
@@ -200,6 +204,8 @@ void LandscapeContext::DisplayUI() {
         LOGI << "Set image resolution to " << resolution.x << "," << resolution.y;
         image.reset(new GlImage(resolution.x, resolution.y));
         render.reset(new HeightmapRender(map.get(), image.get()));
+
+        mIsLandscapeNeedsUpdate = true;
     }
 
     if (landscapeSize != newLandscapeSize) {
@@ -214,6 +220,8 @@ void LandscapeContext::DisplayUI() {
         image->clear();
 
         render.reset(new HeightmapRender(map.get(), image.get()));
+
+        mIsLandscapeNeedsUpdate = true;
     }
 
     ImGui::Separator();
@@ -269,5 +277,9 @@ void LandscapeContext::Update() {
     if (currentTime - lastFpsTime > 1.0) {
         mFps = ImGui::GetIO().Framerate;
         lastFpsTime = currentTime;
+    }
+
+    if (mIsLandscapeNeedsUpdate) {
+        UpdateRenderedLandscape();
     }
 }

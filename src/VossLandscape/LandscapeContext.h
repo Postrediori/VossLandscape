@@ -41,6 +41,7 @@ public:
 
 private:
     void DisplayUI();
+    void UpdateRenderedLandscape();
 
 private:
     GLFWwindow* mWindow = nullptr;
@@ -49,6 +50,7 @@ private:
     int mSavedXPos = 0, mSavedYPos = 0;
     int mSavedWidth = 0, mSavedHeight = 0;
     float mFps = 0.f;
+    bool mIsLandscapeNeedsUpdate = true;
 
     ShaderProgram program;
     VertexBuffer pointsVbo;
