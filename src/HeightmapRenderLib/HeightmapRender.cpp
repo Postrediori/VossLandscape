@@ -14,24 +14,30 @@ static const uint32_t g_ColorSnow  = 0xFFFFFF;
 
 HeightmapRender::HeightmapRender(VossHeightmap* map, Image* image)
     : m_map(map)
-    , m_image(image)
 {
     m_xmax = map->GetWidth() - 1; m_xmin = 0.0;
     m_ymax = map->GetWidth() - 1; m_ymin = 0.0;
     m_xh = -1.0;
     m_yh = -1.0;
 
-    m_scale  = (m_image->GetWidth() - 4) * 2.0 /
-              (sqrt(3.0) * ((m_xmax - m_xmin) + (m_ymax - m_ymin)));
-    m_zScale = g_ZScale;
-
-    m_c.resize(image->GetWidth());
+    setImage(image);
 }
 
 void HeightmapRender::draw()
 {
     drawHoriz();
     drawVert();
+}
+
+void HeightmapRender::setImage(Image* image)
+{
+    assert(image);
+    m_image = image;
+
+    m_scale = (m_image->GetWidth() - 4) * 2.0 /
+        (sqrt(3.0) * ((m_xmax - m_xmin) + (m_ymax - m_ymin)));
+    m_zScale = g_ZScale;
+    m_c.resize(m_image->GetWidth());
 }
 
 void HeightmapRender::clearC()

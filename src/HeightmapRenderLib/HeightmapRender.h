@@ -6,6 +6,8 @@ public:
     HeightmapRender(VossHeightmap* map, Image* image);
     
     void draw();
+
+    void setImage(Image* image);
     
 private:
     void clearC();

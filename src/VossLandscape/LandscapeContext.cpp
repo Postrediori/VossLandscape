@@ -203,7 +203,7 @@ void LandscapeContext::DisplayUI() {
         resolution = ResolutionData[resolutionId];
         LOGI << "Set image resolution to " << resolution.x << "," << resolution.y;
         image.reset(new GlImage(resolution.x, resolution.y));
-        render.reset(new HeightmapRender(map.get(), image.get()));
+        render->setImage(image.get());
 
         mIsLandscapeNeedsUpdate = true;
     }
