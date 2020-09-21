@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <functional>
 #include <tuple>
+#include <unordered_map>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
