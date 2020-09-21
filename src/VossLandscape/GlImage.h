@@ -9,6 +9,8 @@ public:
     void CopyToTexture();
 
     void BindTexture();
+    
+    GLuint GetTexture() const { return m_texture; }
 
 private:
     bool InitTexture();

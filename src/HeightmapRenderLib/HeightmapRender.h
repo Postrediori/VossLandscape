@@ -1,11 +1,10 @@
 #pragma once
 
-class HeightmapRender
-{
+class HeightmapRender : public IHeightmapRenderer {
 public:
     HeightmapRender(VossHeightmap* map, Image* image);
     
-    void draw();
+    void draw() override;
 
     void setImage(Image* image);
     

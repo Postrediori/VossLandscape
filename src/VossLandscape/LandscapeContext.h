@@ -65,4 +65,7 @@ private:
     std::unique_ptr<VossHeightmap> map;
     std::unique_ptr<GlImage> image;
     std::unique_ptr<HeightmapRender> render;
+    
+    std::unique_ptr<GlImage> minimapImage;
+    std::unique_ptr<MinimapRenderer> minimapRender;
 };

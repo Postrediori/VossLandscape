@@ -2,6 +2,7 @@
 #include "MathFunctions.h"
 #include "VossHeightmap.h"
 #include "Image.h"
+#include "IHeightmapRenderer.h"
 #include "HeightmapRender.h"
 
 static const double g_ZScale = 100.0;

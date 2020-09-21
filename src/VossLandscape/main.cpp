@@ -12,6 +12,8 @@
 #include "Image.h"
 #include "GlImage.h"
 #include "VossHeightmap.h"
+#include "IHeightmapRenderer.h"
+#include "MinimapRenderer.h"
 #include "HeightmapRender.h"
 
 #include "ScopeGuard.h"

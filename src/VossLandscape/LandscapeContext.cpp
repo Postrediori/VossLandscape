@@ -11,7 +11,9 @@
 #include "Image.h"
 #include "GlImage.h"
 #include "VossHeightmap.h"
+#include "IHeightmapRenderer.h"
 #include "HeightmapRender.h"
+#include "MinimapRenderer.h"
 
 #include "ScopeGuard.h"
 #include "LandscapeContext.h"
@@ -56,6 +58,9 @@ bool LandscapeContext::Init(GLFWwindow* window) {
     map = std::make_unique<VossHeightmap>(landscapeSize);
     image = std::make_unique<GlImage>(resolution.x, resolution.y);
     render = std::make_unique<HeightmapRender>(map.get(), image.get());
+    
+    minimapImage = std::make_unique<GlImage>(map->GetWidth(), map->GetWidth());
+    minimapRender = std::make_unique<MinimapRenderer>(map.get(), minimapImage.get());
 
     map->SetSeekValues(heightSeek, slopeSeek);
     map->generate(worldPos.x, worldPos.y);
@@ -70,6 +75,9 @@ void LandscapeContext::Release() {
 void LandscapeContext::UpdateRenderedLandscape() {
     render->draw();
     image->CopyToTexture();
+    
+    minimapRender->draw();
+    minimapImage->CopyToTexture();
 }
 
 void LandscapeContext::Display() {
@@ -155,6 +163,16 @@ void LandscapeContext::DisplayUI() {
     ImGui::SliderFloat("Height Seek", &newHeightSeek, 1.4f, 3.9f, "%.1f");
 
     ImGui::Separator();
+    
+    {
+        ImTextureID my_tex_id = (ImTextureID)(intptr_t)(minimapImage->GetTexture());
+        
+        ImVec2 uvMin = ImVec2(0.0f, 0.0f); // Top-left
+        ImVec2 uvMax = ImVec2(1.0f, 1.0f); // Lower-right
+        ImVec4 tintCol = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // No tint
+        ImVec4 borderCol = ImVec4(1.0f, 1.0f, 1.0f, 0.5f); // 50% opaque white
+        ImGui::Image(my_tex_id, ImVec2(128, 128), uvMin, uvMax, tintCol, borderCol);
+    }
 
     ImGui::Text("World Navigation");
     ImGui::Text("Position: %d, %d", worldPos.x, worldPos.y);
