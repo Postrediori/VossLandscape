@@ -14,7 +14,6 @@ static const double m_SlopeSeek = 2200.0;
 
 VossHeightmap::VossHeightmap(size_t nmax)
     : m_width((1 << nmax) + 1)
-    , m_nmax(nmax)
     , m_seek(0.0)
     , m_heightSeek(g_HeightSeek)
     , m_slopeSeek(m_SlopeSeek)

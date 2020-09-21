@@ -19,7 +19,7 @@ bool GlImage::InitTexture()
     // Init textures
     glGenTextures(1, &m_texture); LOGOPENGLERROR();
     if (!m_texture) {
-        LOGE << "Unable to initialize texture for Amari Renderer";
+        LOGE << "Unable to initialize texture";
         return false;
     }
 

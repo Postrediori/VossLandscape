@@ -32,7 +32,7 @@ void Image::clear()
 
 void Image::putPixel(size_t x, size_t y, uint32_t color)
 {
-    if (x >= m_width || y >= m_height) {
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
         return;
     }
     m_data[y * m_pitch + x] = color;

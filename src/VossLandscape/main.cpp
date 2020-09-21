@@ -112,7 +112,7 @@ bool RunScene() {
 /*****************************************************************************
  * Main
  ****************************************************************************/
-int main(int argc, const char* argv[])
+int main(int /*argc*/, const char** /*argv*/)
 {
     plog::ConsoleAppender<plog::LogFormatter> consoleAppender;
 #ifdef NDEBUG
