@@ -1,10 +1,7 @@
 #pragma once
 
-#ifdef _MSC_VER
-# ifndef _USE_MATH_DEFINES
-#  define _USE_MATH_DEFINES
-# endif
-#endif
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include <regex>
 #include <cmath>
@@ -17,16 +14,11 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <functional>
 
-#include <glad/glad.h>
-
-#include "imgui.h"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_opengl3.h"
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #include <plog/Log.h>
 #include <plog/Appenders/ConsoleAppender.h>
-

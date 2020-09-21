@@ -16,11 +16,8 @@ GlImage::~GlImage()
 
 bool GlImage::InitTexture()
 {
-    GLuint genbuf[1];
-
     // Init textures
-    glGenTextures(1, genbuf); LOGOPENGLERROR();
-    m_texture = genbuf[0];
+    glGenTextures(1, &m_texture); LOGOPENGLERROR();
     if (!m_texture) {
         LOGE << "Unable to initialize texture for Amari Renderer";
         return false;
@@ -30,7 +27,8 @@ bool GlImage::InitTexture()
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); LOGOPENGLERROR();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); LOGOPENGLERROR();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGBA,
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, NULL); LOGOPENGLERROR();
 
     return true;
@@ -38,10 +36,12 @@ bool GlImage::InitTexture()
 
 void GlImage::CopyToTexture()
 {
-    std::unique_ptr<uint8_t> image_data(createRGB());
+    std::unique_ptr < uint8_t, std::function<void(uint8_t*)>> image_data(
+        createRGB(nullptr, ImageByteOrder::Direct),
+        [](uint8_t* p) { delete[] p; });
 
     glBindTexture(GL_TEXTURE_2D, m_texture); LOGOPENGLERROR();
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RGB,
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RGBA,
         GL_UNSIGNED_BYTE, (const GLubyte *)image_data.get()); LOGOPENGLERROR();
 }
 
