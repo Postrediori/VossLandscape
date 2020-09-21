@@ -215,7 +215,7 @@ void LandscapeContext::DisplayUI() {
         resolutionId = newResolutionId;
         resolution = ResolutionData[resolutionId];
         LOGI << "Set image resolution to " << resolution.x << "," << resolution.y;
-        image.reset(new GlImage(resolution.x, resolution.y));
+        image = std::make_unique<GlImage>(resolution.x, resolution.y);
         render->setImage(image.get());
 
         mIsLandscapeNeedsUpdate = true;
@@ -225,14 +225,17 @@ void LandscapeContext::DisplayUI() {
         landscapeSize = newLandscapeSize;
         LOGI << "Set landscape size to " << landscapeSize;
 
-        map.reset(new VossHeightmap(landscapeSize));
+        map = std::make_unique<VossHeightmap>(landscapeSize);
 
         map->SetSeekValues(heightSeek, slopeSeek);
         map->generate(worldPos.x, worldPos.y);
 
         image->clear();
 
-        render.reset(new HeightmapRender(map.get(), image.get()));
+        render = std::make_unique<HeightmapRender>(map.get(), image.get());
+
+        minimapImage = std::make_unique<GlImage>(map->GetWidth(), map->GetWidth());
+        minimapRender = std::make_unique<MinimapRenderer>(map.get(), minimapImage.get());
 
         mIsLandscapeNeedsUpdate = true;
     }
