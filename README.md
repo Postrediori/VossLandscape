@@ -32,15 +32,16 @@ VossImage [options] <output file name>
 
 The following instructions apply to:
 
-* Ubuntu 18.04
-* Ubuntu 16.04
-* Debian 9
+* Ubuntu 20.04, 18.04, 16.04
+* Debian 9 and higher
 
 ```
 sudo apt-get install -y \
     build-essential \
     cmake \
-    libsdl2-dev
+    xorg-dev \
+    libgl1-mesa-dev \
+    libfreetype6-dev
 ```
 
 ### RedHat-based Systems
@@ -53,9 +54,27 @@ The following instructions apply to:
 sudo dnf install -y \
     gcc gcc-c++ make \
     cmake \
-    SDL2-devel
+    mesa-libGL-devel \
+    libXrandr-devel \
+    libXinerama-devel \
+    libXcursor-devel \
+    libXi-devel \
+    freetype-devel
 ```
 
+* CentOS 7 and higher
+
+```
+sudo yum install -y \
+    gcc gcc-c++ make \
+    cmake \
+    mesa-libGL-devel \
+    libXrandr-devel \
+    libXinerama-devel \
+    libXcursor-devel \
+    libXi-devel \
+    freetype-devel
+```
 
 ## Cloning Repository
 
@@ -66,7 +85,7 @@ git clone --recursive https://github.com/Postrediori/VossLandscape.git
 cd VossLandscape
 ```
 
-## Building Project
+## Building Project on Linux
 
 The program is built with the commands below. CMake requires the directory 
 with the main project's `CMakeLists.txt` file as an argument. Then the CMake 
@@ -74,28 +93,32 @@ creates the build files for the GNU make which build an executable.
 
 ```
 mkdir build && cd build
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE=Release
 make
+make install
 ```
 
-## Building Project in Release Mode
+## Building Project on macOS
+
+Generate build files and build sources on macOS with the following commands:
 
 ```
 mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake .. -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_BUILD_TYPE=Release
 make
+make install
 ```
 
 ## Running Project
 
-After the successful build the binary `VossLandscape` will end up in `build/src/VossLandscape/` directory.
+After the successful build the binary `VossLandscape` will end up in `bundle/VossLandscape/` directory.
 
 ```
-cd build
-./src/VossLandscape/VossLandscape
+cd bundle/VossLandscape
+./VossLandscape
 ```
 
 ## Links
 
 * Richard F. Voss and John Clarke. ["1/f noise" in music: Music from 1/f noise](https://asa.scitation.org/doi/abs/10.1121/1.381721). The Journal of the Acoustical Society of America 63, 258 (1978).
-
+* Richard F.Voss. [Random fractals: Self-affinity in noise, music, mountains, and clouds](https://doi.org/10.1016/0167-2789(89)90220-0). Physica D: Nonlinear Phenomena 38, 1-3 (1989).
