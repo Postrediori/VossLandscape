@@ -1,11 +1,5 @@
 #pragma once
 
-#ifdef _MSC_VER
-# ifndef _USE_MATH_DEFINES
-#  define _USE_MATH_DEFINES
-# endif
-#endif
-
 #include <regex>
 #include <cmath>
 #include <memory>
@@ -16,4 +10,4 @@
 #include <fstream>
 #include <iostream>
 
-#include <png.h>
+#include <stb_image_write.h>

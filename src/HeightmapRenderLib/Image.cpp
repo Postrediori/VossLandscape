@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Math.h"
+#include "MathFunctions.h"
 #include "Image.h"
 
 static const size_t g_BytesPerPixel = 3;

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Math.h"
+#include "MathFunctions.h"
 #include "VossHeightmap.h"
 #include "Image.h"
 #include "HeightmapRender.h"

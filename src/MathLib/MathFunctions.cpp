@@ -1,19 +1,5 @@
 #include "stdafx.h"
-#include "Math.h"
-
-#ifdef _MSC_VER
-double trunc(double x)
-{
-    return (double)((int)x);
-}
-
-double round(double x)
-{
-    double t = trunc(x);
-    double d = x - t;
-    return (d<0.5) ? t : (t + 1.0);
-}
-#endif
+#include "MathFunctions.h"
 
 int clp2(int x)
 {

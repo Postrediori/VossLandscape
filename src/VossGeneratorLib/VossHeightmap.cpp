@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Math.h"
+#include "MathFunctions.h"
 #include "VossHeightmap.h"
 
 static const double AS = 0.0;

@@ -1,5 +1,7 @@
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
 #include "stdafx.h"
-#include "Math.h"
+#include "MathFunctions.h"
 #include "VossHeightmap.h"
 #include "Image.h"
 #include "PngImage.h"
