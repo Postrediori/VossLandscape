@@ -96,7 +96,6 @@ void LandscapeContext::DisplayUI() {
     linearalg::ivec2 newWorldPos = worldPos;
     int newResolutionId = resolutionId;
     float newHeightSeek = heightSeek;
-    float newSlopeSeek = slopeSeek;
     int newLandscapeSize = landscapeSize;
 
     ImGui::Begin("Heightmap Settings");
@@ -153,8 +152,7 @@ void LandscapeContext::DisplayUI() {
 
     ImGui::Separator();
 
-    ImGui::InputFloat("Height Seek", &newHeightSeek, 0.1f, 1.0f, "%.1f");
-    ImGui::InputFloat("Slope Seek", &newSlopeSeek, 50.f, 100.0f, "%.0f");
+    ImGui::SliderFloat("Height Seek", &newHeightSeek, 1.4f, 3.9f, "%.1f");
 
     ImGui::Separator();
 
@@ -179,15 +177,12 @@ void LandscapeContext::DisplayUI() {
     }
 
     if (worldPos != newWorldPos
-        || heightSeek != newHeightSeek
-        || slopeSeek != newSlopeSeek) {
+        || heightSeek != newHeightSeek) {
         worldPos = newWorldPos;
         heightSeek = newHeightSeek;
-        slopeSeek = newSlopeSeek;
         LOGI << "Move to " << worldPos.x << "," << worldPos.y;
         LOGI << "Set heightmap parameters to "
-            << "heightSeek=" << heightSeek
-            << " slopeSeek=" << slopeSeek;
+            << "heightSeek=" << heightSeek;
 
         map->SetSeekValues(heightSeek, slopeSeek);
 
