@@ -2,15 +2,15 @@
 #include "MathFunctions.h"
 #include "Image.h"
 
-static const size_t g_BytesPerPixel = 3;
+static const size_t g_BytesPerPixel = 4;
 static const size_t g_BitDepth = 8;
 
 void convertColor(uint32_t color, uint8_t rgba[])
 {
-    rgba[0] = (color >> 16);       // Red
+    rgba[0] = (color >> 16); // Red
     rgba[1] = (color >> 8) & 0xFF; // Green
-    rgba[2] = (color & 0xFF);      // Blue
-    rgba[3] = 0;
+    rgba[2] = (color & 0xFF); // Blue
+    rgba[3] = 0xFF;
 }
 
 Image::Image(size_t width, size_t height)
@@ -23,10 +23,6 @@ Image::Image(size_t width, size_t height)
     m_data_size = m_pitch * m_height;
     m_data.resize(m_data_size);
     clear();
-}
-
-Image::~Image()
-{
 }
 
 void Image::clear()
@@ -42,7 +38,7 @@ void Image::putPixel(size_t x, size_t y, uint32_t color)
     m_data[y * m_pitch + x] = color;
 }
 
-uint8_t* Image::createRGB(size_t* data_size, bool reversed)
+uint8_t* Image::createRGB(size_t* data_size, ImageByteOrder byteOrder)
 {
     size_t img_data_size = m_width * m_height * m_bytesPerPixel;
     
@@ -58,14 +54,14 @@ uint8_t* Image::createRGB(size_t* data_size, bool reversed)
         uint32_t* ofs = (uint32_t *)(m_data.data() + row * m_pitch);
         
         for (size_t col = 0; col < m_width; col++) {
-            if (reversed) {
+            if (byteOrder == ImageByteOrder::Reversed) {
                 uint8_t rgba[4];
                 convertColor(*ofs, rgba);
                 p[0] = rgba[2];
                 p[1] = rgba[1];
                 p[2] = rgba[0];
             }
-            else {
+            else if (byteOrder == ImageByteOrder::Direct) {
                 convertColor(*ofs, p);
             }
             

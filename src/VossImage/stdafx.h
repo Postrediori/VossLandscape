@@ -9,5 +9,6 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <functional>
 
 #include <stb_image_write.h>

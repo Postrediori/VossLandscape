@@ -1,10 +1,16 @@
 #pragma once
 
+enum class ImageByteOrder : uint8_t
+{
+    Direct,
+    Reversed
+};
+
 class Image
 {
 public:
     Image(size_t width, size_t height);
-    virtual ~Image();
+    virtual ~Image() { };
     
     void clear();
     virtual bool saveToFile(const std::string& /*file_name*/) { return false; }
@@ -15,7 +21,7 @@ public:
     void putPixel(size_t x, size_t y, uint32_t color);
 
 protected:
-    uint8_t* createRGB(size_t* data_size = NULL, bool reversed = false);
+    uint8_t* createRGB(size_t* data_size, ImageByteOrder byteOrder);
     
 protected:
     size_t m_width;
