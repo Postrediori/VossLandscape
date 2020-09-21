@@ -297,5 +297,6 @@ void LandscapeContext::Update() {
 
     if (mIsLandscapeNeedsUpdate) {
         UpdateRenderedLandscape();
+        mIsLandscapeNeedsUpdate = false;
     }
 }
