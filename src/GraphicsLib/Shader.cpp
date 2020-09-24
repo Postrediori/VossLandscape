@@ -1,5 +1,4 @@
-// Shader.cpp
-#include "stdafx.h"
+#include "pch.h"
 #include "Shader.h"
 
 std::string Shader::loadShaderFile(const std::string& filename) {

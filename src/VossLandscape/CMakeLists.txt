@@ -13,6 +13,8 @@ target_link_libraries(${PROJECT}
     ${GLAD_LIBRARIES}
     ${IMGUI_LIBRARIES}
     MathLib
+    UtilsLib
+    GraphicsLib
     VossGeneratorLib
     HeightmapRenderLib
     )

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "GlUtils.h"
 
 static const std::unordered_map<GLenum, std::string> OpenGlErrors = {
