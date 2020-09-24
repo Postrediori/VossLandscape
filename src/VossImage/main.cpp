@@ -1,10 +1,11 @@
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "stdafx.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "pch.h"
 #include "MathFunctions.h"
 #include "VossHeightmap.h"
 #include "Image.h"
 #include "PngImage.h"
+#include "IHeightmapRenderer.h"
 #include "HeightmapRender.h"
 
 static const size_t g_LandscapeSize = 7; // 2^7 = 128x128 heightmap

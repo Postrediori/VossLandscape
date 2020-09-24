@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "GlUtils.h"
 #include "ShaderProgram.h"
 #include "VertexArray.h"

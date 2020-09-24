@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "MathFunctions.h"
 
 int clp2(int x)

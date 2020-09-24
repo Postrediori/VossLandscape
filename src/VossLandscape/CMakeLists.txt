@@ -1,5 +1,8 @@
 make_executable()
 
+target_precompile_headers(${PROJECT} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/pch.h)
+
 target_include_directories(${PROJECT} PUBLIC
     ${OPENGL_INCLUDE_DIR}
     ${PLOG_INCLUDE_DIR}

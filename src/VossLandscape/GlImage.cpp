@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "GlUtils.h"
 #include "Image.h"
 #include "GlImage.h"

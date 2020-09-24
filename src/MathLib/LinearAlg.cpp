@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "LinearAlg.h"
 
 bool linearalg::operator!=(const linearalg::ivec2& lhs, const linearalg::ivec2& rhs) {

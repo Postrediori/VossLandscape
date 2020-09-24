@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "MathFunctions.h"
 #include "VossHeightmap.h"
 #include "Image.h"
