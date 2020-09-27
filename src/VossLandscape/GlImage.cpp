@@ -36,9 +36,7 @@ bool GlImage::InitTexture()
 
 void GlImage::CopyToTexture()
 {
-    std::unique_ptr < uint8_t, std::function<void(uint8_t*)>> image_data(
-        createRGB(nullptr, ImageByteOrder::Direct),
-        [](uint8_t* p) { delete[] p; });
+    std::unique_ptr<uint8_t[]> image_data(createRGB(nullptr, ImageByteOrder::Direct));
 
     glBindTexture(GL_TEXTURE_2D, m_texture); LOGOPENGLERROR();
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RGBA,
