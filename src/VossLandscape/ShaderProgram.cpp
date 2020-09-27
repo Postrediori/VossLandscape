@@ -3,8 +3,7 @@
 #include "Shader.h"
 #include "ShaderProgram.h"
 
-
-static const char vertex_src_1_30[] = R"glsl(
+static const char vertex_src[] = R"glsl(
 #version 330 core
 in vec2 coord;
 in vec2 tex_coord;
@@ -25,7 +24,7 @@ void main(void){
 }
 )glsl";
 
-static const char fragment_src_1_30[] = R"glsl(
+static const char fragment_src[] = R"glsl(
 #version 330 core
 in vec2 xy_coord;
 out vec4 frag_color;
@@ -44,12 +43,11 @@ static const GLfloat g_OrthoMVP[] = {
     0.0f, 0.0f, 0.0f, 1.0f
 };
 
-
 ShaderProgram::ShaderProgram()
 {
     if (Shader::createProgramSource(m_program,
-        vertex_src_1_30, fragment_src_1_30)) {
-        LOGI << "Using GLSL 1.30 for rendering";
+        vertex_src, fragment_src)) {
+        LOGI << "Using GLSL 3.30 for rendering";
     }
 
     m_aCoord = glGetAttribLocation(m_program, "coord"); LOGOPENGLERROR();
