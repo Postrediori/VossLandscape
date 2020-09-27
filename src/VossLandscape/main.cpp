@@ -23,16 +23,49 @@ static const size_t g_Width = 800;
 static const size_t g_Height = 600;
 static const char g_Title[] = "Voss Heightmap Generator";
 
+/*****************************************************************************
+ * GLFW Callbacks
+ ****************************************************************************/
+void ErrorCallback(int /*error*/, const char* description) {
+    LOGE << "GLFW Error : " << description;
+}
+
+/*****************************************************************************
+ * GUI Functions
+ ****************************************************************************/
+void GuiInit(GLFWwindow* window) {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr; // Disable .ini
+
+    static const char glslVersion[] = "#version 330 core";
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glslVersion);
+}
+
+void GuiTerminate() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
+
+void GuiStartFrame() {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+
+void GuiRender() {
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
 
 /*****************************************************************************
  * Run Scene
  ****************************************************************************/
-void Error(int /*error*/, const char* description) {
-    LOGE << "Error: " << description;
-}
-
 bool RunScene() {
-    glfwSetErrorCallback(Error);
+    glfwSetErrorCallback(ErrorCallback);
 
     if (!glfwInit()) {
         LOGE << "Failed to load GLFW";
@@ -41,7 +74,6 @@ bool RunScene() {
     ScopeGuard glfwGuard([]() { glfwTerminate(); });
 
     LOGI << "Init window context with OpenGL 3.3 Core Profile";
-    static const char* gGlslVersion = "#version 330 core";
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -65,18 +97,8 @@ bool RunScene() {
     gladLoadGL();
 
     // Setup ImGui
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.IniFilename = nullptr; // Disable .ini
-
-    ImGui_ImplGlfw_InitForOpenGL(window.get(), true);
-    ImGui_ImplOpenGL3_Init(gGlslVersion);
-    ScopeGuard imguiGuard([]() {
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
-    });
+    GuiInit(window.get());
+    ScopeGuard imguiGuard([]() { GuiTerminate(); });
 
     // Init program objects
     LandscapeContext context;
@@ -89,16 +111,13 @@ bool RunScene() {
         glfwPollEvents();
 
         // Start ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        GuiStartFrame();
 
         // Render scene
         context.Display();
 
         // Render ImGui
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        GuiRender();
 
         // Update objects
         context.Update();
@@ -125,16 +144,16 @@ int main(int /*argc*/, const char** /*argv*/)
         bool status = RunScene();
         if (!status) {
             LOGE << "Error occured while running the scene";
-            return -1;
+            return 1;
         }
     }
     catch (const std::exception& ex) {
         LOGE << ex.what();
-        return -1;
+        return 1;
     }
     catch (...) {
         LOGE << "Unknown exception happened";
-        return -1;
+        return 1;
     }
 
     return 0;
