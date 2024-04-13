@@ -50,6 +50,9 @@ bool LandscapeContext::Init(GLFWwindow* window) {
     LOGI << "OpenGL Version   : " << glGetString(GL_VERSION);
     LOGI << "GLSL Version     : " << glGetString(GL_SHADING_LANGUAGE_VERSION);
 
+    LOGI << "GLFW Version     : " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << "." << GLFW_VERSION_REVISION;
+    LOGI << "ImGui Version    : " << IMGUI_VERSION << " (" << IMGUI_VERSION_NUM << ")";
+
     mWindow = window;
     glfwSetWindowUserPointer(mWindow, static_cast<void *>(this));
 

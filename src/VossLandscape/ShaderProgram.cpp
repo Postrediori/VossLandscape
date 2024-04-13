@@ -3,33 +3,28 @@
 #include "Shader.h"
 #include "ShaderProgram.h"
 
-static const char vertex_src[] = R"glsl(
-#version 330 core
+static const char vertex_src[] = R"glsl(#version 330 core
 in vec2 coord;
 in vec2 tex_coord;
 out vec2 xy_coord;
 uniform vec2 iRes;
 uniform mat4 mvp;
 const float aspect_ratio=0.75;
-void main(void){
+void main() {
     xy_coord=coord.xy;
-    if (iRes.x>iRes.y){
-        xy_coord.x*=iRes.y/(iRes.x*aspect_ratio);
-    }else{
-        xy_coord.y*=iRes.x/(iRes.y*aspect_ratio);
-    }
+    vec2 r=iRes*vec2(aspect_ratio,1.);
+    xy_coord*=(r.x>r.y)?vec2(r.y/r.x,1.):vec2(1.,r.x/r.y);
     gl_Position=mvp*vec4(xy_coord,0.,1.);
     xy_coord=tex_coord.xy;
     xy_coord.y=-xy_coord.y;
 }
 )glsl";
 
-static const char fragment_src[] = R"glsl(
-#version 330 core
+static const char fragment_src[] = R"glsl(#version 330 core
 in vec2 xy_coord;
 out vec4 frag_color;
 uniform sampler2D tex;
-void main(void){
+void main() {
    frag_color=texture(tex,xy_coord);
    frag_color.a=1.0;
 }
