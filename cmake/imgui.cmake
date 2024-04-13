@@ -1,12 +1,16 @@
-set(IMGUI_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/3rdparty/imgui)
-file(GLOB IMGUI_SOURCES ${IMGUI_INCLUDE_DIR}/*.cpp)
-file(GLOB IMGUI_HEADERS ${IMGUI_INCLUDE_DIR}/*.h)
+set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/3rdparty/imgui)
+set(IMGUI_INCLUDE_DIR ${IMGUI_DIR} ${IMGUI_DIR}/backends)
+file(GLOB IMGUI_SOURCES ${IMGUI_DIR}/*.cpp)
+file(GLOB IMGUI_BACKENDS_SOURCES
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_opengl2.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp)
                  
-add_library(imgui STATIC ${IMGUI_SOURCES} ${IMGUI_SOURCES})
+add_library(imgui STATIC ${IMGUI_SOURCES} ${IMGUI_BACKENDS_SOURCES})
 
-add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD)
+target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
-include_directories(
+target_include_directories(imgui PUBLIC
     ${IMGUI_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIR}
     ${GLFW_INCLUDE_DIR}
