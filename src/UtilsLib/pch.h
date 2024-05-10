@@ -1,5 +1,8 @@
 #pragma once
 
-#include <functional>
+#include <iomanip>
 
-#include <plog/Log.h>
+#include <plog/Record.h>
+#include <plog/Util.h>
+#include <plog/Init.h>
+#include <plog/Appenders/ConsoleAppender.h>

@@ -1,17 +1,15 @@
 #pragma once
 
-class HeightmapRender : public IHeightmapRenderer {
-public:
-    HeightmapRender(VossHeightmap* map, Image* image);
-    
-    void draw() override;
+#include "BaseHeightmapRenderer.h"
 
-    void setImage(Image* image);
-    
+class HeightmapRender : public BaseHeightmapRenderer {
+public:
+    void Draw(BaseImage& image, BaseHeightmap& heightmap) override;
+
 private:
-    void clearC();
-    void drawHoriz();
-    void drawVert();
+    void ClearC();
+    void DrawHoriz();
+    void DrawVert();
     void p5000();
     void p6000();
     void p6500(int tick);
@@ -20,10 +18,10 @@ private:
     void p8000();
     void p8100();
     void p8200();
-    
+
 private:
-    VossHeightmap* m_map;
-    Image* m_image;
+    BaseImage* m_pImage;
+    BaseHeightmap* m_pHeightmap;
 
     std::vector<uint16_t> m_c;
 

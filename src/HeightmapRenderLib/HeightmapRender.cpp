@@ -1,54 +1,48 @@
 #include "pch.h"
 #include "MathFunctions.h"
-#include "VossHeightmap.h"
-#include "Image.h"
-#include "IHeightmapRenderer.h"
 #include "HeightmapRender.h"
 
-static const double g_ZScale = 100.0;
+constexpr double g_ZScale = 100.0;
 
-static const double g_SnowLevel = 50.0;
+constexpr double g_SnowLevel = 50.0;
 
-static const uint32_t g_ColorWater = 0x0000AA;
-static const uint32_t g_ColorEarth = 0xAA5500;
-static const uint32_t g_ColorSnow  = 0xFFFFFF;
+constexpr uint32_t g_ColorWater = 0x0000AA;
+constexpr uint32_t g_ColorEarth = 0xAA5500;
+constexpr uint32_t g_ColorSnow  = 0xFFFFFF;
 
-HeightmapRender::HeightmapRender(VossHeightmap* map, Image* image)
-    : m_map(map)
+void HeightmapRender::Draw(BaseImage& image, BaseHeightmap& heightmap)
 {
-    m_xmax = map->GetWidth() - 1; m_xmin = 0.0;
-    m_ymax = map->GetWidth() - 1; m_ymin = 0.0;
+    // Set heightmap parameters
+    m_xmax = heightmap.GetWidth() - 1; m_xmin = 0.0;
+    m_ymax = heightmap.GetWidth() - 1; m_ymin = 0.0;
     m_xh = -1.0;
     m_yh = -1.0;
 
-    setImage(image);
-}
-
-void HeightmapRender::draw()
-{
-    drawHoriz();
-    drawVert();
-}
-
-void HeightmapRender::setImage(Image* image)
-{
-    assert(image);
-    m_image = image;
-
-    m_scale = (m_image->GetWidth() - 4) * 2.0 /
+    // Set image parameters
+    m_scale = (image.GetWidth() - 4) * 2.0 /
         (sqrt(3.0) * ((m_xmax - m_xmin) + (m_ymax - m_ymin)));
     m_zScale = g_ZScale;
-    m_c.resize(m_image->GetWidth());
+    m_c.resize(image.GetWidth());
+
+    m_pImage = &image;
+    m_pHeightmap = &heightmap;
+
+    // Draw heightmap
+    DrawHoriz();
+    DrawVert();
+
+    m_pImage = nullptr;
+    m_pHeightmap = nullptr;
 }
 
-void HeightmapRender::clearC()
+void HeightmapRender::ClearC()
 {
     std::fill(m_c.begin(), m_c.end(), 0);
 }
 
-void HeightmapRender::drawHoriz()
+void HeightmapRender::DrawHoriz()
 {
-    clearC();
+    ClearC();
 
     m_y = m_ymax;
     while (m_y >= m_ymin) {
@@ -77,9 +71,9 @@ void HeightmapRender::drawHoriz()
     }
 }
 
-void HeightmapRender::drawVert()
+void HeightmapRender::DrawVert()
 {
-    clearC();
+    ClearC();
 
     m_x = m_xmax;
     while (m_x >= m_xmin) {
@@ -112,13 +106,13 @@ void HeightmapRender::p5000()
 {
     int xp = iround(m_x);
     int yp = iround(m_y);
-    m_z = m_map->GetHeight(xp, yp) / m_map->GetSlopeSeek();
+    m_z = m_pHeightmap->GetHeight(xp, yp) / m_slopeSeek;
     if (m_z <= 0.0) {
         m_z = 0.0;
     }
     m_z *= m_zScale;
-    m_xt = double(m_image->GetWidth() / 2 - 1) + sqrt(3.0) * (m_yi - m_xi) / 2.0;
-    m_yt = double(m_image->GetHeight() - 1) + m_z - (m_yi + m_xi) / 2.0;
+    m_xt = (double)(m_pImage->GetWidth() / 2 - 1) + sqrt(3.0) * (m_yi - m_xi) / 2.0;
+    m_yt = (double)(m_pImage->GetHeight() - 1) + m_z - (m_yi + m_xi) / 2.0;
 }
 
 void HeightmapRender::p6000() {
@@ -150,7 +144,6 @@ void HeightmapRender::p7000()
             p7500(i);
         }
         p8200();
-        
     }
     else {
         for (int i = 0; i <= iround(m_dx); i++) {
@@ -171,25 +164,26 @@ void HeightmapRender::p8000()
 {
     int xp = iround(m_xt);
     int yp = iround(m_yt);
-    
+
     if (m_yt <= m_c[xp]) {
         return;
     }
-    
+
     m_c[xp] = yp;
 
-    uint32_t color;
-    if (m_z <= 0.0) {
-        color = g_ColorWater;
-    }
-    else if (m_z > 0.0 && m_z <= g_SnowLevel) {
-        color = g_ColorEarth;
-    }
-    else {
-        color = g_ColorSnow;
-    }
+    uint32_t color = [](double z) {
+        if (z <= 0.0) {
+            return g_ColorWater;
+        }
+        else if (z > 0.0 && z <= g_SnowLevel) {
+            return g_ColorEarth;
+        }
+        else {
+            return g_ColorSnow;
+        }
+    }(m_z);
 
-    m_image->putPixel(xp, m_image->GetHeight() + 100 - 1 - yp, color);
+    m_pImage->PutPixel(xp, m_pImage->GetHeight() + 100 - 1 - yp, color);
 }
 
 void HeightmapRender::p8100()

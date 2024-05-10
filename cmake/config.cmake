@@ -22,10 +22,13 @@ macro(make_project_)
 endmacro ()
 
 macro (make_compile_options_)
-    if(MSVC)
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         target_compile_options(${PROJECT} PUBLIC /Wall)
         target_compile_definitions(${PROJECT} PUBLIC -D_USE_MATH_DEFINES)
-    else ()
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(${PROJECT} PUBLIC -Wall -Wextra -Wpedantic
+            -Wno-missing-field-initializers) # fot stb_image
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         target_compile_options(${PROJECT} PUBLIC -Wall -Wextra -Wpedantic)
     endif ()
 endmacro ()

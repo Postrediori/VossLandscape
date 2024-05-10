@@ -27,11 +27,9 @@ class LandscapeContext {
 public:
     static const size_t g_LandscapeSize = 7; // 2^7 = 128x128 heightmap
 
-    LandscapeContext();
-    ~LandscapeContext();
+    LandscapeContext() = default;
 
     bool Init(GLFWwindow* window);
-    void Release();
 
     void Display();
     void Update();
@@ -45,27 +43,34 @@ private:
 
 private:
     GLFWwindow* mWindow = nullptr;
+
     int mWindowWidth = 0, mWindowHeight = 0;
     bool mFullscreen = false;
     int mSavedXPos = 0, mSavedYPos = 0;
     int mSavedWidth = 0, mSavedHeight = 0;
-    float mFps = 0.f;
-    bool mIsLandscapeNeedsUpdate = true;
 
-    ShaderProgram program;
-    VertexBuffer pointsVbo;
-    VertexArray pointsVao;
+    float mFps = 0.f;
+
+    TexturedRectangleShape texturedRectangle;
 
     int landscapeSize = g_LandscapeSize;
     int resolutionId = 1;
-    linearalg::ivec2 resolution = { 800, 600 };
-    linearalg::ivec2 worldPos = { 10, 10 };
+    LinearAlg::ivec2 resolution = { 800, 600 };
+    LinearAlg::ivec2 worldPos = { 10, 10 };
     double heightSeek = 2.0, slopeSeek = 2200.0;
 
+    int newLandscapeSize;
+    int newResolutionId;
+    LinearAlg::ivec2 newWorldPos;
+    float newHeightSeek;
+
+    GraphicsResource::unique_texture buttonsTexture;
+
     std::unique_ptr<VossHeightmap> map;
-    std::unique_ptr<GlImage> image;
-    std::unique_ptr<HeightmapRender> render;
-    
-    std::unique_ptr<GlImage> minimapImage;
-    std::unique_ptr<MinimapRenderer> minimapRender;
+
+    std::unique_ptr<TextureImage> image;
+    HeightmapRender render;
+
+    std::unique_ptr<TextureImage> minimapImage;
+    MinimapRenderer minimapRender;
 };

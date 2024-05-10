@@ -32,8 +32,8 @@ VossImage [options] <output file name>
 
 The following instructions apply to:
 
-* Ubuntu 20.04, 18.04, 16.04
-* Debian 9 and higher
+* Ubuntu 24.04, 22.04, 20.04
+* Debian 12, 11
 
 ```
 sudo apt-get install -y \

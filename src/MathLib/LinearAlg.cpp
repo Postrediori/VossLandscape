@@ -1,6 +1,30 @@
 #include "pch.h"
 #include "LinearAlg.h"
 
-bool linearalg::operator!=(const linearalg::ivec2& lhs, const linearalg::ivec2& rhs) {
-    return (lhs.x != rhs.x) || (lhs.y != rhs.y);
+namespace LinearAlg
+{
+    ivec2 ivec2::operator+(const ivec2& rhs) {
+        return {x + rhs.x, y + rhs.y};
+    }
+    ivec2 ivec2::operator-(const ivec2& rhs) {
+        return {x - rhs.x, y - rhs.y};
+    }
+
+    ivec2 ivec2::operator+=(const ivec2& rhs) {
+        x += rhs.x;
+        y += rhs.y;
+        return *this;
+    }
+    ivec2 ivec2::operator-=(const ivec2& rhs) {
+        x -= rhs.x;
+        y -= rhs.y;
+        return *this;
+    }
+
+    bool ivec2::operator==(const ivec2& rhs) {
+        return (x == rhs.x) && (y == rhs.y);
+    }
+    bool ivec2::operator!=(const ivec2& rhs) {
+        return !(*this == rhs);
+    }
 }

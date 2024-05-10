@@ -1,11 +1,9 @@
-
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "pch.h"
+
 #include "MathFunctions.h"
 #include "VossHeightmap.h"
-#include "Image.h"
 #include "PngImage.h"
-#include "IHeightmapRenderer.h"
 #include "HeightmapRender.h"
 
 static const size_t g_LandscapeSize = 7; // 2^7 = 128x128 heightmap
@@ -27,7 +25,7 @@ struct ParamsHelper
     }
 };
 
-void Usage(char cmdline[])
+void Usage(char* cmdline)
 {
     std::cout
         << "Usage: " << cmdline << " [options] <output file name>" << std::endl
@@ -67,7 +65,7 @@ bool ParseArguments(int argc, char* argv[], ParamsHelper& helper)
                 // Uh-oh, there was no argument to the destination option.
                 std::cerr << arg << " option requires one argument." << std::endl;
                 return false;
-            }  
+            }
         }
         else if ((arg == "-w") || (arg == "--worldpos")) {
             if (i + 1 < argc) {
@@ -86,7 +84,7 @@ bool ParseArguments(int argc, char* argv[], ParamsHelper& helper)
             else {
                 std::cerr << arg << " option requires one argument." << std::endl;
                 return false;
-            }  
+            }
         }
     }
     // Last argument is output file name
@@ -102,31 +100,35 @@ int main(int argc, char* argv[])
 {
     if (argc < 2) {
         Usage(argv[0]);
-        return 1;
+        return 0;
     }
 
     ParamsHelper params;
     if (!ParseArguments(argc, argv, params)) {
         std::cerr << "Failed to parse parameters" << std::endl;
-        return 1;
+        return -1;
     }
+
     if (params.showHelp) {
         Usage(argv[0]);
         return 0;
     }
-    
+
     VossHeightmap map(g_LandscapeSize);
     PngImage image(params.imageWidth, params.imageHeight);
-    HeightmapRender render(&map, &image);
 
-    map.generate(params.worldPosX, params.worldPosY);
-    render.draw();
-    image.saveToFile(params.outputFile);
-    
-    std::cout << "Image Formed:\t" << params.imageWidth << "x" << params.imageHeight << std::endl;
-    std::cout << "World Position:\t" << params.worldPosX << "," << params.worldPosY << std::endl;
-    std::cout << "Output File:\t" << params.outputFile << std::endl << std::endl;
+    HeightmapRender render;
+    render.SetSlopeSeek(map.GetSlopeSeek());
+
+    map.Generate(params.worldPosX, params.worldPosY);
+
+    render.Draw(image, map);
+
+    image.SaveToFile(params.outputFile);
+
+    std::cout << "Image Formed: " << params.imageWidth << "x" << params.imageHeight << std::endl;
+    std::cout << "World Position: " << params.worldPosX << "," << params.worldPosY << std::endl;
+    std::cout << "Output File: " << params.outputFile << std::endl << std::endl;
 
     return 0;
 }
-

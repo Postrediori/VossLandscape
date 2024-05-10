@@ -1,14 +1,9 @@
 #pragma once
 
-class MinimapRenderer : public IHeightmapRenderer {
+#include "BaseImage.h"
+#include "BaseHeightmapRenderer.h"
+
+class MinimapRenderer : public BaseHeightmapRenderer {
 public:
-    MinimapRenderer(VossHeightmap* map, Image* image);
-
-    void draw() override;
-
-    void setImage(Image* image);
-
-private:
-    VossHeightmap* m_map;
-    Image* m_image;
+    void Draw(BaseImage& image, BaseHeightmap& heightmap) override;
 };

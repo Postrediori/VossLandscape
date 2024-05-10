@@ -1,48 +1,49 @@
 #include "pch.h"
 #include "LinearAlg.h"
-#include "GlUtils.h"
+#include "GraphicsLogger.h"
 #include "Shader.h"
-#include "VertexBuffer.h"
-#include "ShaderProgram.h"
-#include "VertexArray.h"
 #include "LogFormatter.h"
 
 #include "MathFunctions.h"
-#include "Image.h"
-#include "GlImage.h"
 #include "VossHeightmap.h"
-#include "IHeightmapRenderer.h"
 #include "HeightmapRender.h"
 #include "MinimapRenderer.h"
+#include "GraphicsResource.h"
+#include "GraphicsShape.h"
+#include "TextureImage.h"
 
-#include "ScopeGuard.h"
+#include "UiUtils.h"
+
 #include "LandscapeContext.h"
 
-static const int g_VerticesCount = 6;
-static const GLfloat g_Vertices[] = {
-    -1.f, -1.f,  0.0f, 0.0f
-    , 1.f, -1.f,  1.0f, 0.0f
-    , 1.f,  1.f,  1.0f, 1.0f
+using namespace LinearAlg;
 
-    , -1.f, -1.f,  0.0f, 0.0f
-    ,  1.f,  1.f,  1.0f, 1.0f
-    , -1.f,  1.f,  0.0f, 1.0f
-};
 
-static const std::vector<linearalg::ivec2> ResolutionData = {
+/*****************************************************************************
+ * Controls data
+ ****************************************************************************/
+
+const ivec2 DirectionNW = {-1, 0};
+const ivec2 DirectionNE = {0, -1};
+const ivec2 DirectionSW = {0, 1};
+const ivec2 DirectionSE = {1, 0};
+
+const std::vector<ivec2> ResolutionData = {
     {640, 480},
     {800, 600},
     {1024, 768}
 };
 
-LandscapeContext::LandscapeContext()
-    : pointsVbo(GL_TRIANGLES, g_VerticesCount, g_Vertices)
-    , pointsVao(program) {
-}
+const std::vector<std::tuple<std::string, int>> LandscapeSizeData = {
+    {"64x64", 6},
+    {"128x128", 7},
+    {"256x256", 8},
+};
 
-LandscapeContext::~LandscapeContext() {
-    Release();
-}
+
+/*****************************************************************************
+ * LandscapeContext
+ ****************************************************************************/
 
 bool LandscapeContext::Init(GLFWwindow* window) {
     LOGI << "OpenGL Renderer  : " << glGetString(GL_RENDERER);
@@ -59,67 +60,60 @@ bool LandscapeContext::Init(GLFWwindow* window) {
     glfwGetWindowSize(mWindow, &mWindowWidth, &mWindowHeight);
 
     map = std::make_unique<VossHeightmap>(landscapeSize);
-    image = std::make_unique<GlImage>(resolution.x, resolution.y);
-    render = std::make_unique<HeightmapRender>(map.get(), image.get());
-    
-    minimapImage = std::make_unique<GlImage>(map->GetWidth(), map->GetWidth());
-    minimapRender = std::make_unique<MinimapRenderer>(map.get(), minimapImage.get());
+    image = std::make_unique<TextureImage>(resolution.x, resolution.y);
+
+    minimapImage = std::make_unique<TextureImage>(map->GetWidth(), map->GetWidth());
 
     map->SetSeekValues(heightSeek, slopeSeek);
-    map->generate(worldPos.x, worldPos.y);
+    map->Generate(worldPos.x, worldPos.y);
+
+    render.SetSlopeSeek(map->GetSlopeSeek());
+    minimapRender.SetSlopeSeek(map->GetSlopeSeek());
+
+    if (!texturedRectangle.Init()) {
+        LOGE << "Cannot init textured rectangle";
+        return false;
+    }
+    texturedRectangle.SetResolution(mWindowWidth, mWindowHeight);
+
+    UpdateRenderedLandscape();
+
+    // Buttons Texture
+    buttonsTexture.reset(GetButtonTexture());
+    if (!buttonsTexture) {
+        LOGE << "Cannot create texture object";
+        return false;
+    }
 
     return true;
 }
 
-void LandscapeContext::Release() {
-    //
-}
-
 void LandscapeContext::UpdateRenderedLandscape() {
-    render->draw();
+    render.Draw(*image, *map);
     image->CopyToTexture();
-    
-    minimapRender->draw();
+
+    minimapRender.Draw(*minimapImage, *map);
     minimapImage->CopyToTexture();
 }
 
 void LandscapeContext::Display() {
     glClear(GL_COLOR_BUFFER_BIT); LOGOPENGLERROR();
 
-    program.UseProgram();
-
     image->BindTexture();
-
-    program.SetUniforms(mWindowWidth, mWindowHeight);
-
-    pointsVbo.BindBuffer();
-
-    pointsVao.BindVertexArray();
-
-    pointsVbo.DrawArrays();
-
-    pointsVao.UnbindVertexArray();
+    texturedRectangle.Render();
 
     DisplayUI();
 }
 
 void LandscapeContext::DisplayUI() {
-    linearalg::ivec2 newWorldPos = worldPos;
-    int newResolutionId = resolutionId;
-    float newHeightSeek = heightSeek;
-    int newLandscapeSize = landscapeSize;
+    newWorldPos = worldPos;
+    newResolutionId = resolutionId;
+    newHeightSeek = heightSeek;
+    newLandscapeSize = landscapeSize;
 
     ImGui::Begin("Heightmap Settings");
 
-    ImGui::Text("Procedural Landscape");
-
-    ImGui::Separator();
-
-    ImGui::Text("Heightmap Size");
-
-    static const std::vector<std::tuple<std::string, int>> LandscapeSizeData = {
-        {"64x64", 6}, {"128x128", 7}, {"256x256", 8},
-    };
+    ImGui::SeparatorText("Heightmap Size");
 
     bool firstItemFlag = true;
     for (const auto& data : LandscapeSizeData) {
@@ -137,115 +131,77 @@ void LandscapeContext::DisplayUI() {
         ImGui::RadioButton(name.c_str(), &newLandscapeSize, size);
     }
 
-    ImGui::Separator();
+    ImGui::SeparatorText("Output Resolution");
 
-    ImGui::Text("Output Resolution");
+    for (size_t i = 0; i < ResolutionData.size(); i++) {
+        auto res = ResolutionData[i];
 
-    static const std::vector<std::tuple<std::string, int>> OutputResolutionData = {
-        {"640x480", 0}, {"800x600", 1}, {"1024x768", 2},
-    };
+        std::stringstream s;
+        s << res.x << "x" << res.y;
 
-    firstItemFlag = true;
-    for (const auto& data : OutputResolutionData) {
-        std::string name;
-        int sizeId;
-        std::tie(name, sizeId) = data;
-
-        if (firstItemFlag) {
-            firstItemFlag = false;
-        }
-        else {
+        if (i > 0) {
             ImGui::SameLine();
         }
 
-        ImGui::RadioButton(name.c_str(), &newResolutionId, sizeId);
+        ImGui::RadioButton(s.str().c_str(), &newResolutionId, i);
     }
 
     ImGui::Separator();
 
     ImGui::SliderFloat("Height Seek", &newHeightSeek, 1.4f, 3.9f, "%.1f");
 
-    ImGui::Separator();
-    
-    {
-        ImTextureID my_tex_id = (ImTextureID)(intptr_t)(minimapImage->GetTexture());
-        
-        ImVec2 uvMin = ImVec2(0.0f, 0.0f); // Top-left
-        ImVec2 uvMax = ImVec2(1.0f, 1.0f); // Lower-right
-        ImVec4 tintCol = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // No tint
-        ImVec4 borderCol = ImVec4(1.0f, 1.0f, 1.0f, 0.5f); // 50% opaque white
-        ImGui::Image(my_tex_id, ImVec2(128, 128), uvMin, uvMax, tintCol, borderCol);
-    }
+    ImGui::SeparatorText("World Navigation");
 
-    ImGui::Text("World Navigation");
     ImGui::Text("Position: %d, %d", worldPos.x, worldPos.y);
 
-    float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
-    if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
-        newWorldPos.x--;
-    }
-    ImGui::SameLine(0.0f, spacing);
-    if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
-        newWorldPos.x++;
-    }
-    //ImGui::SameLine(0.0f, spacing);
-    if (ImGui::ArrowButton("##up", ImGuiDir_Up)) {
-        newWorldPos.y--;
-    }
-    ImGui::SameLine(0.0f, spacing);
-    if (ImGui::ArrowButton("##down", ImGuiDir_Down)) {
-        newWorldPos.y++;
-    }
+    if (ImGui::BeginTable("NavigationTable", 3)) {
+        ImGui::TableNextRow();
 
-    if (worldPos != newWorldPos
-        || heightSeek != newHeightSeek) {
-        worldPos = newWorldPos;
-        heightSeek = newHeightSeek;
-        LOGI << "Move to " << worldPos.x << "," << worldPos.y;
-        LOGI << "Set heightmap parameters to "
-            << "heightSeek=" << heightSeek;
+        const ImVec2 NavigationButtonSize = ImVec2(30.f, 30.f);
+        const auto buttonsTexId = reinterpret_cast<ImTextureID>(static_cast<GLuint>(buttonsTexture));
 
-        map->SetSeekValues(heightSeek, slopeSeek);
+        ImGui::TableSetColumnIndex(0);
+        if (ImGui::ImageButton("##nw", buttonsTexId, NavigationButtonSize,
+            GetButtonUV0(0), GetButtonUV1(0))) {
+            newWorldPos += DirectionNW;
+        }
 
-        map->generate(worldPos.x, worldPos.y);
+        ImGui::TableSetColumnIndex(2);
+        if (ImGui::ImageButton("##ne", buttonsTexId, NavigationButtonSize,
+            GetButtonUV0(1), GetButtonUV1(1))) {
+            newWorldPos += DirectionNE;
+        }
 
-        image->clear();
+        ImGui::TableNextRow();
 
-        mIsLandscapeNeedsUpdate = true;
-    }
+        ImGui::TableSetColumnIndex(1);
+        {
+            ImGui::Dummy(ImVec2(64.f, 128.f));
 
-    if (resolutionId != newResolutionId) {
-        resolutionId = newResolutionId;
-        resolution = ResolutionData[resolutionId];
-        LOGI << "Set image resolution to " << resolution.x << "," << resolution.y;
-        image = std::make_unique<GlImage>(resolution.x, resolution.y);
-        render->setImage(image.get());
+            ImTextureID my_tex_id = (ImTextureID)(intptr_t)(minimapImage->GetTexture());
 
-        mIsLandscapeNeedsUpdate = true;
-    }
+            ImVec2 p = ImGui::GetCursorScreenPos();
+            ImageRotated(my_tex_id, ImVec2(p.x + 12.f, p.y - 64.f), ImVec2(128.f, 128.f), -M_PI_4);
+        }
 
-    if (landscapeSize != newLandscapeSize) {
-        landscapeSize = newLandscapeSize;
-        LOGI << "Set landscape size to " << landscapeSize;
+        ImGui::TableNextRow();
 
-        map = std::make_unique<VossHeightmap>(landscapeSize);
+        ImGui::TableSetColumnIndex(0);
+        if (ImGui::ImageButton("##sw", buttonsTexId, NavigationButtonSize,
+            GetButtonUV0(2), GetButtonUV1(2))) {
+            newWorldPos += DirectionSW;
+        }
 
-        map->SetSeekValues(heightSeek, slopeSeek);
-        map->generate(worldPos.x, worldPos.y);
+        ImGui::TableSetColumnIndex(2);
+        if (ImGui::ImageButton("##se", buttonsTexId, NavigationButtonSize,
+            GetButtonUV0(3), GetButtonUV1(3))) {
+            newWorldPos += DirectionSE;
+        }
 
-        image->clear();
-
-        render = std::make_unique<HeightmapRender>(map.get(), image.get());
-
-        minimapImage = std::make_unique<GlImage>(map->GetWidth(), map->GetWidth());
-        minimapRender = std::make_unique<MinimapRenderer>(map.get(), minimapImage.get());
-
-        mIsLandscapeNeedsUpdate = true;
+        ImGui::EndTable();
     }
 
-    ImGui::Separator();
-
-    ImGui::Text("User guide:");
+    ImGui::SeparatorText("User guide");
     ImGui::BulletText("F1 to toggle fullscreen");
     ImGui::BulletText("ESC to exit");
 
@@ -260,6 +216,7 @@ void LandscapeContext::Reshape(int width, int height) {
     glViewport(0, 0, width, height); LOGOPENGLERROR();
     mWindowWidth = width;
     mWindowHeight = height;
+    texturedRectangle.SetResolution(mWindowWidth, mWindowHeight);
 }
 
 void LandscapeContext::Keyboard(int key, int /*scancode*/, int action, int /*mode*/) {
@@ -298,8 +255,57 @@ void LandscapeContext::Update() {
         lastFpsTime = currentTime;
     }
 
-    if (mIsLandscapeNeedsUpdate) {
+    bool landscapeNeedsUpdate = false;
+
+    if (worldPos != newWorldPos || heightSeek != newHeightSeek) {
+        worldPos = newWorldPos;
+        heightSeek = newHeightSeek;
+
+        LOGI << "Move to " << worldPos.x << "," << worldPos.y;
+        LOGI << "Set heightmap parameters to "
+            << "heightSeek=" << heightSeek;
+
+        map->SetSeekValues(heightSeek, slopeSeek);
+
+        map->Generate(worldPos.x, worldPos.y);
+
+        image->Clear();
+
+        render.SetSlopeSeek(slopeSeek);
+        minimapRender.SetSlopeSeek(slopeSeek);
+
+        landscapeNeedsUpdate = true;
+    }
+
+    if (resolutionId != newResolutionId) {
+        resolutionId = newResolutionId;
+        resolution = ResolutionData[resolutionId];
+
+        LOGI << "Set image resolution to " << resolution.x << "," << resolution.y;
+
+        image = std::make_unique<TextureImage>(resolution.x, resolution.y);
+
+        landscapeNeedsUpdate = true;
+    }
+
+    if (landscapeSize != newLandscapeSize) {
+        landscapeSize = newLandscapeSize;
+
+        LOGI << "Set landscape size to " << landscapeSize;
+
+        map = std::make_unique<VossHeightmap>(landscapeSize);
+
+        map->SetSeekValues(heightSeek, slopeSeek);
+        map->Generate(worldPos.x, worldPos.y);
+
+        image->Clear();
+
+        minimapImage = std::make_unique<TextureImage>(map->GetWidth(), map->GetWidth());
+
+        landscapeNeedsUpdate = true;
+    }
+
+    if (landscapeNeedsUpdate) {
         UpdateRenderedLandscape();
-        mIsLandscapeNeedsUpdate = false;
     }
 }

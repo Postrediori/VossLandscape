@@ -1,11 +1,10 @@
 #pragma once
 
-class Image;
+#include "BaseImage.h"
 
-class PngImage : public Image
-{
+class PngImage : public BaseImage {
 public:
     PngImage(size_t width, size_t height);
-    
-    bool saveToFile(const std::string& file_name);
+
+    bool SaveToFile(const std::string& file_name);
 };

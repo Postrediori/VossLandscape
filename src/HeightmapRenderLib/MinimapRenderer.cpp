@@ -1,33 +1,33 @@
 #include "pch.h"
-#include "VossHeightmap.h"
-#include "Image.h"
-#include "IHeightmapRenderer.h"
 #include "MinimapRenderer.h"
 
-static const uint32_t WaterColor = 0x007F7FFF;
+constexpr uint32_t WaterColor = 0x007F7FFF;
 
-MinimapRenderer::MinimapRenderer(VossHeightmap* map, Image* image)
-    : m_map(map) {
-    setImage(image);
-}
-
-void MinimapRenderer::draw() {
-    for (size_t row = 0; row < m_image->GetHeight(); row++) {
-        for (size_t col = 0; col < m_image->GetWidth(); col++) {
-            uint32_t color = 0;
-            int height = int(double(m_map->GetHeight(col, row)) / m_map->GetSlopeSeek() * 256.);
-            if (height < 0) {
-                color = WaterColor;
+void MinimapRenderer::Draw(BaseImage& image, BaseHeightmap& heightmap) {
+    int max = 0;
+    for (size_t row = 0; row < image.GetHeight(); row++) {
+        for (size_t col = 0; col < image.GetWidth(); col++) {
+            auto height = heightmap.GetHeight(col, row);
+            if (max < height) {
+                max = height;
             }
-            else {
-                color = (height << 16) + (height << 8) + height;
-            }
-            m_image->putPixel(col, row, color);
         }
     }
-}
 
-void MinimapRenderer::setImage(Image* image) {
-    assert(image);
-    m_image = image;
+    for (size_t row = 0; row < image.GetHeight(); row++) {
+        for (size_t col = 0; col < image.GetWidth(); col++) {
+            auto height = (int)((double)(heightmap.GetHeight(heightmap.GetWidth() - col - 1, row)) / max * 256.);
+
+            uint32_t color = [](int h) {
+                if (h < 0) {
+                    return WaterColor;
+                }
+                else {
+                    return (uint32_t)((h & 0xFF) << 16) + ((h & 0xFF) << 8) + (h & 0xFF);
+                }
+            }(height);
+
+            image.PutPixel(col, row, color);
+        }
+    }
 }
