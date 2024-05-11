@@ -111,10 +111,10 @@ make install
 
 ## Running Project
 
-After the successful build the binary `VossLandscape` will end up in `bundle/VossLandscape/` directory.
+After the successful build the binary `VossLandscape` will end up in `bundle/` directory.
 
 ```
-cd bundle/VossLandscape
+cd bundle
 ./VossLandscape
 ```
 

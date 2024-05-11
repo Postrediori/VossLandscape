@@ -31,7 +31,8 @@ const ivec2 DirectionSE = {1, 0};
 const std::vector<ivec2> ResolutionData = {
     {640, 480},
     {800, 600},
-    {1024, 768}
+    {1024, 768},
+    {1440, 1080}
 };
 
 const std::vector<std::tuple<std::string, int>> LandscapeSizeData = {
@@ -139,7 +140,7 @@ void LandscapeContext::DisplayUI() {
         std::stringstream s;
         s << res.x << "x" << res.y;
 
-        if (i > 0) {
+        if (i % 2 == 1) {
             ImGui::SameLine();
         }
 
