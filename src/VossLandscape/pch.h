@@ -23,4 +23,5 @@
 #include <imgui_impl_opengl3.h>
 
 #include <plog/Log.h>
+#include <plog/Init.h>
 #include <plog/Appenders/ConsoleAppender.h>
